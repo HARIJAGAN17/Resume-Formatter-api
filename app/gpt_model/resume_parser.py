@@ -10,80 +10,52 @@ llm = AzureChatOpenAI(
     api_version="2024-10-21",
 )
 
-def extract_resume_data(text: str) -> str:
-    # Constructing the prompt with the extracted resume text
+def extract_resume_data(text: str) -> dict:
     prompt = [
-        ("system", "You are an assistant that extracts structured resume data. The response must be a valid JSON object with clear key-value pairs."),
+        ("system", "You are an assistant that extracts structured resume data in a clean JSON format for backend use."),
         HumanMessage(
             content=f"""
-Extract the following details from the resume text:
-- Name
-- Email
-- Phone Number
-- Location
-- LinkedIn (if available)
-- GitHub (if available)
-- Profile Summary (optional)
-- Education (school, degree, years, CGPA, if available)
-- Work Experience (company, title, duration, responsibilities)
-- Skills (including technical skills, frameworks, databases, soft skills)
-- Achievements (if available)
-- Certifications (if available)
-- Academic Projects (project names and descriptions)
-- Links (any other relevant links)
-
-Return the data in the following format:
+Extract the following details from the resume text and return in this exact JSON format:
 
 {{
-  "Name": "<name>",
-  "Email": "<email>",
-  "Phone Number": "<phone_number>",
-  "Location": "<location>",
-  "LinkedIn": "<linkedin_url>",
-  "GitHub": "<github_url>",
-  "Profile Summary": "<profile_summary>",
-  "Education": {{
-    "School": "<school_name>",
-    "Degree": "<degree>",
-    "Years": "<years>",
-    "CGPA": "<cgpa>"
+  "name": "<candidate_full_name>",
+  "summary": ["<bullet_point_summary_1>", "..."],
+  "education": {{
+    "degree": "<degree>",
+    "university": "<university>"
   }},
-  "Skills": {{
-    "Technical Skills": ["<skill_1>", "<skill_2>", ...],
-    "Frameworks/Libraries": ["<framework_1>", "<framework_2>", ...],
-    "Databases": ["<database_1>", "<database_2>", ...],
-    "Soft Skills": ["<soft_skill_1>", "<soft_skill_2>", ...],
-    "Interests": ["<interest_1>", "<interest_2>", ...]
+  "technicalExpertise": {{
+    "<category_1>": ["<item_1>", "<item_2>", "..."],
+    "<category_2>": ["<item_1>", "..."],
+    "...": "..."
   }},
-  "Work Experience": [
+  "certifications": ["<certification_1>", "..."],
+  "experience": [
     {{
-      "Company": "<company_name>",
-      "Title": "<job_title>",
-      "Duration": "<job_duration>",
-      "Responsibilities": ["<responsibility_1>", "<responsibility_2>", ...]
+      "company": "<company_name>",
+      "date": "<duration>",
+      "role": "<job_title>",
+      "clientEngagement": "<client_name>",
+      "program": "<program_name>",
+      "responsibilities": ["<responsibility_1>", "..."]
     }}
-  ],
-  "Achievements": ["<achievement_1>", "<achievement_2>", ...],
-  "Certifications": ["<certification_1>", "<certification_2>", ...],
-  "Academic Projects": [
-    {{
-      "Name": "<project_name>",
-      "Description": "<project_description>"
-    }}
-  ],
-  "Links": {{
-    "LinkedIn": "<linkedin_url>",
-    "GitHub": "<github_url>",
-    "Other": ["<other_link_1>", "<other_link_2>"]
-  }}
+  ]
 }}
 
-# Pass the resume text here for extraction
-Resume text:
-{text}  # This is where the resume content is inserted into the prompt
+Guidelines:
+- Under "technicalExpertise", intelligently group technologies and tools into meaningful categories (e.g., Programming Languages, Frameworks, DevOps & Cloud, Databases, BPM Tools, etc.).
+- Do NOT use fixed or predefined categories — infer them based on the content of the resume.
+- Return only valid JSON — no markdown or explanation.
+- Format all arrays clearly.
+- Omit fields that are empty or irrelevant.
+- Resume text follows below.
+
+Resume Text:
+{text}
 """
         )
     ]
 
     response = llm.invoke(prompt)
-    return {"response": response.content  }
+    return {"response": response.content}
+
