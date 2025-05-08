@@ -12,9 +12,9 @@ llm = AzureChatOpenAI(
 
 def extract_resume_data(text: str) -> dict:
     prompt = [
-        ("system", "You are an assistant that extracts structured resume data in a clean JSON format for backend use."),
-        HumanMessage(
-            content=f"""
+    ("system", "You are an assistant that extracts structured resume data in a clean JSON format for backend use."),
+    HumanMessage(
+        content=f"""
 Extract the following details from the resume text and return in this exact JSON format:
 
 {{
@@ -47,14 +47,15 @@ Guidelines:
 - Do NOT use fixed or predefined categories — infer them based on the content of the resume.
 - Return only valid JSON — no markdown or explanation.
 - Format all arrays clearly.
-- Omit fields that are empty or irrelevant.
+- Always include all top-level keys in the JSON, even if their values are empty strings, empty arrays, or null.
 - Resume text follows below.
 
 Resume Text:
 {text}
 """
-        )
-    ]
+    )
+]
+
 
     response = llm.invoke(prompt)
     return {"response": response.content}
