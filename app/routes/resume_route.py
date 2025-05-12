@@ -4,10 +4,17 @@ from app.utils.resume_reader import extract_resume_text
 from app.gpt_model.resume_parser import extract_resume_data
 from app.authentication.auth import get_current_user
 from app.model.user_auth import User
+import tiktoken  # Added for token counting
+
 router = APIRouter()
 
+# Helper function to count tokens
+def count_tokens(text: str, model="gpt-4"):
+    encoding = tiktoken.encoding_for_model(model)
+    return len(encoding.encode(text))
+
 @router.post("/upload-resume")
-async def upload_resume(file: UploadFile = File(...),current_user:User = Depends(get_current_user)):
+async def upload_resume(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     if not file.filename.endswith((".pdf", ".docx")):
         raise HTTPException(status_code=400, detail="Only PDF or DOCX files are allowed")
 
@@ -17,8 +24,11 @@ async def upload_resume(file: UploadFile = File(...),current_user:User = Depends
     if not text:
         raise HTTPException(status_code=400, detail="Failed to extract resume text")
 
+    # 🔹 Count and log token usage
+    token_count = count_tokens(text)
+    print(f"Token count for extracted resume text: {token_count}")
+
     gpt_response = extract_resume_data(text)
-    # print("Raw GPT Response:", gpt_response)
 
     gpt_text = gpt_response.get("response", "")
 
