@@ -45,6 +45,7 @@ Extract the following details from the resume text and return in this exact JSON
 Guidelines:
 - Under "technicalExpertise", intelligently group technologies and tools into meaningful categories (e.g., Programming Languages, Frameworks, DevOps & Cloud, Databases, BPM Tools, etc.).
 - Do NOT use fixed or predefined categories — infer them based on the content of the resume.
+- In "summary", extract **all relevant overview points** from sections like "Profile Summary", "Professional Summary", or other introductory paragraphs. Include all non-redundant bullet points even if phrased similarly across sections.
 - Return only valid JSON — no markdown or explanation.
 - Format all arrays clearly.
 - Always include all top-level keys in the JSON, even if their values are empty strings, empty arrays, or null.
