@@ -46,11 +46,12 @@ Extract the following details from the resume text and return in this exact JSON
 Guidelines:
 - Under "technicalExpertise", intelligently group technologies and tools into meaningful categories (e.g., Programming Languages, Frameworks, DevOps & Cloud, Databases, BPM Tools, etc.).
 - Do NOT use fixed or predefined categories — infer them based on the resume.
-- In "summary", extract all relevant overview points from sections like "Profile Summary", "Professional Summary", etc.
+- In "summary", extract all relevant overview points from sections like "Profile Summary", "Professional Summary","Professional Experience",etc.
 - Include every company listed under experience, even if that entry has no detailed responsibilities. Leave such fields empty or as empty arrays.
 - Always return valid JSON — no markdown or explanation.
 - Return all top-level keys, even if values are empty arrays or empty strings.
 - Resume text follows below.
+- Resume may list **multiple roles within the same company** (e.g., Cognizant) — extract each role as a **separate experience entry**, keeping the same company name.
 
 Resume Text:
 {text}
