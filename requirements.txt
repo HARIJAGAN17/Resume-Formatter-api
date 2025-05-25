@@ -23,6 +23,7 @@ dill==0.3.8
 diskcache==5.6.3
 distro==1.9.0
 dnspython==2.7.0
+docx2pdf==0.1.8
 dspy==2.6.14
 ecdsa==0.19.1
 email_validator==2.2.0
@@ -69,6 +70,7 @@ orjson==3.10.18
 packaging==24.2
 pandas==2.2.3
 passlib==1.7.4
+pdf2image==1.17.0
 pdfminer.six==20250327
 pdfplumber==0.11.6
 pillow==11.2.1
@@ -81,12 +83,14 @@ pydantic_core==2.33.1
 Pygments==2.19.1
 PyMuPDF==1.25.5
 pypdfium2==4.30.1
+pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 python-docx==1.1.2
 python-dotenv==1.1.0
 python-jose==3.4.0
 python-multipart==0.0.20
 pytz==2025.2
+pywin32==310
 PyYAML==6.0.2
 referencing==0.36.2
 regex==2024.11.6
