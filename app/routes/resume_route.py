@@ -1,20 +1,18 @@
-import json
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
 from app.authentication.auth import get_current_user
 from app.model.user_auth import User
 from app.utils.resume_reader import convert_doc_bytes_to_pdf_bytes, convert_pdf_to_image_bytes
 from app.gpt_model.resume_parser import extract_resume_data_from_image
-import tiktoken
+import json
 import os
+import tiktoken
 
 router = APIRouter()
 
-# Count tokens
 def count_tokens(text: str, model="gpt-4"):
     encoding = tiktoken.encoding_for_model(model)
     return len(encoding.encode(text))
 
-# Score based on field completeness
 def experience_completeness_score(exp):
     score = 0
     if exp.get("company"): score += 1
@@ -26,22 +24,32 @@ def experience_completeness_score(exp):
     return score
 
 @router.post("/upload-resume")
-async def upload_resume(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+async def upload_resume(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
     if not file.filename.endswith((".pdf", ".docx", ".doc")):
         raise HTTPException(status_code=400, detail="Only PDF, DOCX or DOC files are allowed")
 
     file_bytes = await file.read()
 
-    # Convert to PDF if necessary
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected during upload")
+
     if file.filename.endswith(".pdf"):
         pdf_bytes = file_bytes
     else:
         pdf_bytes = convert_doc_bytes_to_pdf_bytes(file_bytes, suffix=os.path.splitext(file.filename)[1])
 
-    # Convert PDF to images
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected before processing")
+
     image_bytes_list = convert_pdf_to_image_bytes(pdf_bytes)
 
-    # Send to GPT-4o (vision) for parsing
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected before GPT processing")
+
     gpt_response = extract_resume_data_from_image(image_bytes_list)
 
     gpt_text = gpt_response.get("response", "")
@@ -55,7 +63,6 @@ async def upload_resume(file: UploadFile = File(...), current_user: User = Depen
         print("JSON Error:", e)
         raise HTTPException(status_code=500, detail="Invalid JSON from GPT response")
 
-    # 🔽 Sort experience by completeness
     if "experience" in structured_data:
         structured_data["experience"].sort(key=experience_completeness_score, reverse=True)
 
