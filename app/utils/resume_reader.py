@@ -12,6 +12,7 @@ import fitz  # PyMuPDF
 from PIL import Image
 from io import BytesIO
 from datetime import datetime
+import aspose.words as aw
 
 logger = logging.getLogger(__name__)
 
@@ -22,60 +23,30 @@ logger = logging.getLogger(__name__)
 #     with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
 #         return "\n".join(page.extract_text() or "" for page in pdf.pages)
 
-def _convert_to_pdf_with_libreoffice(doc_path: str) -> Optional[str]:
-    try:
-        output_dir = os.path.dirname(doc_path)
-        base_name = Path(doc_path).stem
-
-        process = subprocess.run([
-            'soffice',
-            '--headless',
-            '--convert-to',
-            'pdf',
-            '--outdir',
-            output_dir,
-            doc_path
-        ], capture_output=True, text=True, timeout=60)
-
-        if process.returncode != 0:
-            logger.warning(f"LibreOffice conversion failed: {process.stderr}")
-            return None
-
-        pdf_path = os.path.join(output_dir, f"{base_name}.pdf")
-        if os.path.exists(pdf_path):
-            return pdf_path
-        return None
-    except Exception as e:
-        logger.warning(f"LibreOffice conversion exception: {str(e)}")
-        return None
-
 def convert_doc_bytes_to_pdf_bytes(file_bytes: bytes, suffix=".docx") -> bytes:
-    # Save DOC/DOCX to temp file
+    # Save the DOC/DOCX to a temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_doc:
         temp_doc.write(file_bytes)
         temp_doc_path = temp_doc.name
 
+    # Define output PDF path
     pdf_path = str(Path(temp_doc_path).with_suffix(".pdf"))
+
     try:
-        # Try docx2pdf first (works only if Word installed, Windows/Mac)
-        convert(temp_doc_path, pdf_path)
-        if not os.path.exists(pdf_path):
-            raise RuntimeError("docx2pdf did not produce output PDF.")
-    except Exception as e:
-        logger.warning(f"docx2pdf conversion failed: {e}. Trying LibreOffice fallback...")
-        # Fallback to LibreOffice conversion
-        pdf_path = _convert_to_pdf_with_libreoffice(temp_doc_path)
-        if not pdf_path or not os.path.exists(pdf_path):
+        # Load and convert with Aspose
+        doc = aw.Document(temp_doc_path)
+        doc.save(pdf_path, aw.SaveFormat.PDF)
+
+        # Read PDF bytes
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+    finally:
+        # Cleanup
+        if os.path.exists(temp_doc_path):
             os.remove(temp_doc_path)
-            raise RuntimeError("Both docx2pdf and LibreOffice conversions failed.")
-
-    # Read PDF bytes
-    with open(pdf_path, "rb") as f:
-        pdf_bytes = f.read()
-
-    # Cleanup
-    os.remove(temp_doc_path)
-    os.remove(pdf_path)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
 
     return pdf_bytes
 
