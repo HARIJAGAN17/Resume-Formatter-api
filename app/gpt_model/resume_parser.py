@@ -49,7 +49,14 @@ def extract_resume_data_from_image(image_bytes_list: List[bytes]) -> dict:
       "program": "<program_name_or_empty_string>",
       "responsibilities": ["<responsibility_1>", "...or empty array if not available"]
     }
-  ]
+  ],
+  "contact": {
+  "email": "<email_or_empty>",
+  "phone": "<phone_or_empty>",
+  "linkedin": "<linkedin_url_or_empty>",
+  "github": "<github_url_or_empty>",
+  "portfolio": "<portfolio_url_or_empty>"
+    }
 }
 
 Guidelines:
