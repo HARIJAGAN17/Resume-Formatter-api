@@ -5,6 +5,7 @@ from app.model import user_auth
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.resume_route import router as resume_route
 from app.routes.project_route import router as project_route
+from app.routes.parsed_History import router as details_route
 
 app = FastAPI()
 app.add_middleware(
@@ -17,6 +18,7 @@ app.add_middleware(
 app.include_router(auth_route)
 app.include_router(resume_route)
 app.include_router(project_route)
+app.include_router(details_route)
 
 @app.on_event("startup")
 def on_startup():

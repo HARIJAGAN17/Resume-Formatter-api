@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Request
 from app.authentication.auth import get_current_user
 from app.model.user_auth import User
 from app.utils.resume_reader import convert_doc_bytes_to_pdf_bytes, convert_pdf_to_image_bytes
-from app.gpt_model.resume_parser import extract_resume_data_from_image
+from app.gpt_model.resume_parser import extract_resume_data_from_image,analyze_resume_from_images
 import json
 import os
 import tiktoken
@@ -67,3 +67,42 @@ async def upload_resume(
         structured_data["experience"].sort(key=experience_completeness_score, reverse=True)
 
     return structured_data
+
+from fastapi import Body
+
+@router.post("/analyze-resume")
+async def analyze_resume(
+    request: Request,
+    file: UploadFile = File(...),
+    job_description: str = Body(..., embed=True),
+):
+    if not file.filename.endswith((".pdf", ".docx", ".doc")):
+        raise HTTPException(status_code=400, detail="Only PDF, DOCX or DOC files are allowed")
+
+    file_bytes = await file.read()
+
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected during upload")
+
+    if file.filename.endswith(".pdf"):
+        pdf_bytes = file_bytes
+    else:
+        pdf_bytes = convert_doc_bytes_to_pdf_bytes(file_bytes, suffix=os.path.splitext(file.filename)[1])
+
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected before processing")
+
+    image_bytes_list = convert_pdf_to_image_bytes(pdf_bytes)
+
+    if await request.is_disconnected():
+        raise HTTPException(status_code=499, detail="Client disconnected before GPT processing")
+
+    # Call the combined analysis function here
+    # make sure this import matches your structure
+
+    analysis_result = analyze_resume_from_images(image_bytes_list, job_description)
+
+    if "error" in analysis_result:
+        raise HTTPException(status_code=500, detail=f"LLM analysis error: {analysis_result['error']}")
+
+    return analysis_result

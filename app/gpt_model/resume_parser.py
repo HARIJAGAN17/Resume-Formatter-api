@@ -2,6 +2,7 @@ import base64
 from typing import List
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+import json
 
 
 llm = AzureChatOpenAI(
@@ -78,3 +79,93 @@ Guidelines:
 
     response = llm.invoke(prompt)
     return {"response": response.content}
+
+
+import base64
+import json
+from typing import List
+from langchain_openai import AzureChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+from fastapi import HTTPException
+
+llm = AzureChatOpenAI(
+    azure_deployment="gpt4o",
+    api_version="2024-10-21",
+)
+
+def analyze_resume_from_images(image_bytes_list: List[bytes], job_description: str) -> dict:
+    # Convert image bytes to base64 data URIs
+    image_content_list = []
+    for img_bytes in image_bytes_list:
+        b64 = base64.b64encode(img_bytes).decode("utf-8")
+        image_content_list.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/png;base64,{b64}"
+            }
+        })
+
+    # Compose prompt
+    prompt = [
+        SystemMessage(content="You are an expert career coach and resume analyst."),
+        HumanMessage(content=[
+            {
+                "type": "text",
+                "text": f"""
+Analyze the resume image(s) and compare it to the job description provided. Provide:
+
+1. A concise summary listing the **top 5 key strengths** or highlights of the candidate's resume relevant to the job.
+
+2. A detailed compatibility score in percentage for each of these categories:
+- Technical Skills
+- Experience Level
+- Education
+- Keywords Match
+
+3. An overall "job_score" percentage that summarizes how relevant this candidate is for the job described.
+
+Return the response ONLY as a JSON object in this format (no extra text or markdown):
+
+{{
+  "summary": [
+    "<key_strength_point_1>",
+    "<key_strength_point_2>",
+    "<key_strength_point_3>",
+    "<key_strength_point_4>",
+    "<key_strength_point_5>"
+  ],
+  "compatibility_score": {{
+    "technical_skills": "<percent>%",
+    "experience_level": "<percent>%",
+    "education": "<percent>%",
+    "keywords_match": "<percent>%"
+  }},
+  "job_score": "<overall_match_percent>%"
+}}
+
+Job Description:
+\"\"\"{job_description}\"\"\"
+"""
+            }
+        ] + image_content_list)
+    ]
+
+    # Invoke LLM
+    response = llm.invoke(prompt)
+
+    # Clean and parse JSON response
+    raw_response = response.content
+    cleaned = raw_response.strip().strip("`")
+    if cleaned.lower().startswith("json"):
+        cleaned = cleaned[4:].strip()
+
+    try:
+        result = json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        print("LLM JSON Decode Error:", e)
+        print("Raw LLM Output:", raw_response)
+        raise HTTPException(status_code=500, detail="LLM analysis error: Failed to parse LLM response as JSON.")
+
+    return result
+
+

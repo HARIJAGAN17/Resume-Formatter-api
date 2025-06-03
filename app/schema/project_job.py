@@ -6,7 +6,6 @@ class ProjectBase(BaseModel):
     description: str
     job_title: str
     resume_count: int
-    avg_score: float
     threshold: int
 
 

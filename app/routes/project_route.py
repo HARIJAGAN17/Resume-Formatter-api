@@ -21,7 +21,6 @@ def create_new_project(project: ProjectCreate, db: Session = Depends(get_db)):
         description=project.description,
         job_title=project.job_title,
         resume_count=project.resume_count,
-        avg_score=project.avg_score,
         threshold=project.threshold
     )
     db.add(db_project)
