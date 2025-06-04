@@ -3,6 +3,7 @@ from typing import List
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import json
+from fastapi import HTTPException
 
 
 llm = AzureChatOpenAI(
@@ -81,12 +82,6 @@ Guidelines:
     return {"response": response.content}
 
 
-import base64
-import json
-from typing import List
-from langchain_openai import AzureChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
-from fastapi import HTTPException
 
 llm = AzureChatOpenAI(
     azure_deployment="gpt4o",
