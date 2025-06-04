@@ -13,7 +13,13 @@ class ParsedResume(Base):
     resume_details = Column(JSON, nullable=False)
     formatted_details = Column(JSON, nullable=False)
     resume_score = Column(Float, nullable=False)
-    summary_analysis = Column(String, nullable=True)
+    file_size = Column(Float, nullable=False)
+    summary_analysis = Column(JSON, nullable=True)  
+
+    last_analyzed_timestamp = Column(String, nullable=True)  
+    approval_status = Column(String, nullable=True)         
+    
+
 
     # Relationships
     project = relationship("Project", back_populates="resumes")

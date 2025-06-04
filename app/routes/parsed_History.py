@@ -22,7 +22,11 @@ def create_parsed_history(resume: ParsedResumeCreate, db: Session = Depends(get_
         resume_details=resume.resume_details,
         formatted_details = resume.formatted_details,
         resume_score=resume.resume_score,
-        summary_analysis=resume.summary_analysis
+        file_size =resume.file_size,
+        summary_analysis=resume.summary_analysis,
+        last_analyzed_timestamp= resume.last_analyzed_timestamp,
+        approval_status = resume.approval_status
+
     )
     db.add(db_resume)
     db.commit()
