@@ -17,6 +17,7 @@ def get_db():
 @router.post("/projects", response_model=ProjectResponse)
 def create_new_project(project: ProjectCreate, db: Session = Depends(get_db)):
     db_project = Project(
+        user_id = project.user_id,
         name=project.name,
         description=project.description,
         job_title=project.job_title,

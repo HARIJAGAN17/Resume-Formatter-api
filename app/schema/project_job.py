@@ -11,11 +11,12 @@ class ProjectBase(BaseModel):
 
 
 class ProjectCreate(ProjectBase):
-    pass
+    user_id: int
 
 class ProjectResponse(ProjectBase):
     id: int
     status: str = "Active"
+    user_id: int
     created_at: date 
 
     class Config:

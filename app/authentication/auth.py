@@ -30,9 +30,9 @@ def get_password_hash(password):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None, user_type: str = "user"):
+def create_access_token(data: dict, expires_delta: timedelta | None = None, user_type: str = "user",user_id: int=0):
     to_encode = data.copy()
-    to_encode.update({"sub": data["username"], "user_type": user_type})
+    to_encode.update({"sub": data["username"], "user_type": user_type,"user_id":user_id})
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=120))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

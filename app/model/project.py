@@ -8,6 +8,7 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String)
     job_title = Column(String)
