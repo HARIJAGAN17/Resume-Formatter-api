@@ -75,6 +75,8 @@ async def analyze_resume(
     request: Request,
     file: UploadFile = File(...),
     job_description: str = Body(..., embed=True),
+    current_user: User = Depends(get_current_user)
+
 ):
     if not file.filename.endswith((".pdf", ".docx", ".doc")):
         raise HTTPException(status_code=400, detail="Only PDF, DOCX or DOC files are allowed")
