@@ -58,7 +58,9 @@ def extract_resume_data_from_image(image_bytes_list: List[bytes]) -> dict:
   "linkedin": "<linkedin_url_or_empty>",
   "github": "<github_url_or_empty>",
   "portfolio": "<portfolio_url_or_empty>"
-    }
+    },
+  "externalLinks": ["<url_1>", "<url_2>", "..."]
+
 }
 
 Guidelines:
@@ -70,6 +72,10 @@ Guidelines:
 - If the total combined character length of all summary bullet points exceeds 1400 characters, **rephrase and shorten** the summary to highlight only the **most important strengths and roles**, and ensure it is **within 1400 characters total**.
 - Include every company listed under experience, even if that entry has no detailed responsibilities. Leave such fields empty or as empty arrays.
 - Always return valid JSON — no markdown or explanation.
+- Extract **all URLs** from the resume, including:
+- Contact URLs (LinkedIn, GitHub, portfolio, etc.),
+- Additional links (blogs, articles, Notion, published documents, certificates, etc.)
+- Include *every* valid URL under the `"externalLinks"` array — even if it is already present under the `"contact"` section. Do not filter or deduplicate across sections.
 - Return all top-level keys, even if values are empty arrays or empty strings.
 - Resume may list **multiple roles within the same company** (e.g., Cognizant) — extract each role as a **separate experience entry**, keeping the same company name.
 """
