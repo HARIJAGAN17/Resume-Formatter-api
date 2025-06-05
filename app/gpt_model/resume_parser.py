@@ -107,19 +107,13 @@ def analyze_resume_from_images(image_bytes_list: List[bytes], job_description: s
             {
                 "type": "text",
                 "text": f"""
-Analyze the resume image(s) and compare it to the job description provided. Provide:
+Analyze the resume image(s) and compare it to the job description provided. Your goal is to assess how suitable the candidate is for the job, even if they are overqualified.
 
-1. A concise summary listing the **top 5 key strengths** or highlights of the candidate's resume relevant to the job.
+Instructions:
+- If the candidate is **overqualified** or **has more experience than needed**, they should still receive a **high score** if relevant skills and roles align.
+- Consider soft skills, certifications, and evidence of adaptability if shown in the resume.
 
-2. A detailed compatibility score in percentage for each of these categories:
-- Technical Skills
-- Experience Level
-- Education
-- Keywords Match
-
-3. An overall "job_score" percentage that summarizes how relevant this candidate is for the job described.
-
-Return the response ONLY as a JSON object in this format (no extra text or markdown):
+Return your response as a valid JSON object in this format:
 
 {{
   "summary": [
@@ -135,7 +129,8 @@ Return the response ONLY as a JSON object in this format (no extra text or markd
     "education": "<percent>%",
     "keywords_match": "<percent>%"
   }},
-  "job_score": "<overall_match_percent>%"
+  "job_score": "<overall_match_percent>%",
+  "job_score_reasoning": "<Explain in 2-4 sentences why this resume received this score, highlight strengths and areas for improvement. Be specific about what is missing or excessive.>"
 }}
 
 Job Description:
@@ -148,7 +143,6 @@ Job Description:
     # Invoke LLM
     response = llm.invoke(prompt)
 
-    # Clean and parse JSON response
     raw_response = response.content
     cleaned = raw_response.strip().strip("`")
     if cleaned.lower().startswith("json"):
@@ -162,5 +156,3 @@ Job Description:
         raise HTTPException(status_code=500, detail="LLM analysis error: Failed to parse LLM response as JSON.")
 
     return result
-
-
