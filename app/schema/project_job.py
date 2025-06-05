@@ -32,5 +32,8 @@ class ProjectUpdate(BaseModel):
     status: Optional[str] = None
     user_id: Optional[int] = None  # O
 
+class ProjectStatusUpdate(BaseModel):
+    status: str
+
     class Config:
         orm_mode = True

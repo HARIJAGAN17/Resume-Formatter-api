@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from app.model.project import Project
-from app.schema.project_job import ProjectCreate, ProjectResponse
+from app.schema.project_job import ProjectCreate, ProjectResponse, ProjectStatusUpdate
 from app.database.db import SessionLocal
 from app.authentication.auth import get_current_user
 
@@ -48,18 +48,19 @@ def get_project_by_id(
 @router.put("/projects/{project_id}/status", response_model=ProjectResponse)
 def update_project_status(
     project_id: int,
-    status_data: str,
+    status_data: ProjectStatusUpdate,  # Now expecting a Pydantic model
     db: Session = Depends(get_db)
 ):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    project.status = status_data
+    project.status = status_data.status  # access the field from model
 
     db.commit()
     db.refresh(project)
     return project
+
 
 
 
