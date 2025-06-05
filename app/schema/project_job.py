@@ -3,7 +3,8 @@ from datetime import date
 
 class ProjectBase(BaseModel):
     name: str
-    description: str
+    project_description: str
+    job_description: str
     job_title: str
     resume_count: int
     threshold: int
