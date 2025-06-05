@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 # codes commented out were related to text extraction from the documents
 
-# def extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
-#     with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
-#         return "\n".join(page.extract_text() or "" for page in pdf.pages)
+def extract_text_from_pdf_bytes(pdf_bytes: bytes) -> str:
+    with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
+        return "\n".join(page.extract_text() or "" for page in pdf.pages)
 
 def convert_doc_bytes_to_pdf_bytes(file_bytes: bytes, suffix=".docx") -> bytes:
     # Save the DOC/DOCX to a temporary file
