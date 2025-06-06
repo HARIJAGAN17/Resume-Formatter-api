@@ -136,7 +136,13 @@ Return your response as a valid JSON object in this format:
     "keywords_match": "<percent>%"
   }},
   "job_score": "<overall_match_percent>%",
-  "job_score_reasoning": "<Explain in 2-4 sentences why this resume received this score, highlight strengths and areas for improvement. Be specific about what is missing or excessive.>"
+  "job_score_reasoning": {{
+    "overall": "<2-4 sentences explaining the final job_score. Include highlights and improvements.>",
+    "technical_skills": "<Reasoning for technical_skills score>",
+    "experience_level": "<Reasoning for experience_level score>",
+    "education": "<Reasoning for education score>",
+    "keywords_match": "<Reasoning for keywords_match score>"
+  }}
 }}
 
 Job Description:
