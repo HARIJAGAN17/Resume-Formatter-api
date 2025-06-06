@@ -117,7 +117,10 @@ Analyze the resume image(s) and compare it to the job description provided. Your
 
 Instructions:
 - If the candidate is **overqualified** or **has more experience than needed**, they should still receive a **high score** if relevant skills and roles align.
+- When evaluating experience, carefully check if the candidate's experience is **relevant to the job requirements**. For example, if the job requires 4+ years of experience in ASP.NET, verify if the candidate has at least 4 years working directly with ASP.NET or closely related technologies/roles (e.g., full-stack development with significant ASP.NET use).
+- Experience in general software engineering or unrelated roles should be weighted less if it does not align with the core job requirements.
 - Consider soft skills, certifications, and evidence of adaptability if shown in the resume.
+- Provide clear reasoning on experience relevance and its impact on the score.
 
 Return your response as a valid JSON object in this format:
 
@@ -137,12 +140,17 @@ Return your response as a valid JSON object in this format:
   }},
   "job_score": "<overall_match_percent>%",
   "job_score_reasoning": {{
-    "overall": "<2-4 sentences explaining the final job_score. Include highlights and improvements.>",
-    "technical_skills": "<Reasoning for technical_skills score>",
-    "experience_level": "<Reasoning for experience_level score>",
-    "education": "<Reasoning for education score>",
-    "keywords_match": "<Reasoning for keywords_match score>"
-  }}
+  "overall": "<reasoning text>",
+  "overall_improvement": "<improvement text>",
+  "technical_skills": "<reasoning text>",
+  "technical_skills_improvement": "<improvement text>",
+  "experience_level": "<reasoning text>",
+  "experience_level_improvement": "<improvement text>",
+  "education": "<reasoning text>",
+  "education_improvement": "<improvement text>",
+  "keywords_match": "<reasoning text>",
+  "keywords_match_improvement": "<improvement text>"
+}}
 }}
 
 Job Description:
