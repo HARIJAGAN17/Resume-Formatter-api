@@ -7,7 +7,7 @@ from app.routes.resume_route import router as resume_route
 from app.routes.project_route import router as project_route
 from app.routes.parsed_History import router as details_route
 from app.routes.job_description_route import router as job_description_route
-from app.routes.upload_file import router as upload_file_route
+from app.routes.upload_file_route import router as upload_file_route
 
 app = FastAPI()
 app.add_middleware(
