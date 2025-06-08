@@ -7,6 +7,7 @@ from app.routes.resume_route import router as resume_route
 from app.routes.project_route import router as project_route
 from app.routes.parsed_History import router as details_route
 from app.routes.job_description_route import router as job_description_route
+from app.routes.upload_file import router as upload_file_route
 
 app = FastAPI()
 app.add_middleware(
@@ -21,6 +22,7 @@ app.include_router(resume_route)
 app.include_router(project_route)
 app.include_router(details_route)
 app.include_router(job_description_route)
+app.include_router(upload_file_route)
 
 @app.on_event("startup")
 def on_startup():

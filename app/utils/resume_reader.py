@@ -41,6 +41,9 @@ def convert_doc_bytes_to_pdf_bytes(file_bytes: bytes, suffix=".docx") -> bytes:
         with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
 
+    except Exception as e:
+        raise RuntimeError(f"Failed to convert {suffix} to PDF: {str(e)}")
+
     finally:
         # Cleanup
         if os.path.exists(temp_doc_path):
