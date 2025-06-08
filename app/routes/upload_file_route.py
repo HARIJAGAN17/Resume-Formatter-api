@@ -7,6 +7,7 @@ from app.utils.resume_reader import convert_doc_bytes_to_pdf_bytes
 from typing import List
 import base64
 from datetime import datetime
+import pytz
 
 router = APIRouter()
 
@@ -42,7 +43,7 @@ async def upload_pdf(
         pdf_bytes = file_bytes
         stored_filename = file.filename
 
-    uploaded_timestamp = datetime.utcnow().isoformat()
+    uploaded_timestamp =datetime.now(pytz.timezone("Asia/Kolkata")).isoformat()
 
     new_pdf = PDFFile(
         project_id=project_id,
