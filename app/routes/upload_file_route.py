@@ -98,6 +98,21 @@ def get_all_pdfs(db: Session = Depends(get_db)):
         for pdf in pdfs
     ]
 
+@router.get("/get-pdf/{pdf_id}", response_model=PDFFileResponse)
+def get_pdf_by_id(pdf_id: int = Path(...), db: Session = Depends(get_db)):
+    pdf = db.query(PDFFile).filter(PDFFile.id == pdf_id).first()
+    if not pdf:
+        raise HTTPException(status_code=404, detail="PDF file not found")
+
+    return {
+        "id": pdf.id,
+        "project_id": pdf.project_id,
+        "file_name": pdf.file_name,
+        "file_uploaded_timestamp": pdf.file_uploaded_timestamp,
+        "file_data": base64.b64encode(pdf.file_data).decode("utf-8"),
+        "analysis_status": pdf.analysis_status
+    }
+
 
 @router.patch("/update-analysis-status/{pdf_id}", response_model=PDFFileResponse)
 def update_analysis_status(

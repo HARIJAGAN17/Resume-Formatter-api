@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path,Body
 from sqlalchemy.orm import Session
 from app.database.db import SessionLocal
 from app.model.parsed_resume import ParsedResume
@@ -47,3 +47,18 @@ def get_parsed_history_by_project(
     if not resumes:
         raise HTTPException(status_code=404, detail="No parsed resumes found for this project")
     return resumes
+
+@router.put("/parsed-history/file/{file_id}", response_model=ParsedResumeOut)
+def update_formatted_details_by_file(
+    file_id: int = Path(..., title="The file ID of the parsed resume to update"),
+    formatted_details: dict = Body(..., embed=True, description="New formatted details JSON"),
+    db: Session = Depends(get_db)
+):
+    db_resume = db.query(ParsedResume).filter(ParsedResume.file_id == file_id).first()
+    if not db_resume:
+        raise HTTPException(status_code=404, detail="Parsed resume not found for given file_id")
+    
+    db_resume.formatted_details = formatted_details
+    db.commit()
+    db.refresh(db_resume)
+    return db_resume
