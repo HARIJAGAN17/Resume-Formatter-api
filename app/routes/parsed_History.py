@@ -18,6 +18,7 @@ def create_parsed_history(resume: ParsedResumeCreate, db: Session = Depends(get_
     db_resume = ParsedResume(
         project_id=resume.project_id,
         user_id=resume.user_id,
+        file_id = resume.file_id,
         resume_name=resume.resume_name,
         resume_details=resume.resume_details,
         formatted_details = resume.formatted_details,

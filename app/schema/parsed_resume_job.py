@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Any
 
 class ParsedResumeBase(BaseModel):
+    file_id:int
     resume_name: str
     resume_details: dict 
     formatted_details: dict

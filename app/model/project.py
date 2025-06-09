@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, Float
 from sqlalchemy.sql import func
-from app.database.db import Base
 from sqlalchemy.orm import relationship
-
+from app.database.db import Base
 
 class Project(Base):
     __tablename__ = "projects"
@@ -19,3 +18,4 @@ class Project(Base):
     threshold = Column(Integer)
 
     resumes = relationship("ParsedResume", back_populates="project", cascade="all, delete")
+    pdf_files = relationship("PDFFile", back_populates="project", cascade="all, delete")
