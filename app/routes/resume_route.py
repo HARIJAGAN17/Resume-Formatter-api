@@ -6,6 +6,8 @@ from app.gpt_model.resume_parser import extract_resume_data_from_image,analyze_r
 import json
 import os
 import tiktoken
+from app.utils.pdf_hyperlink_extractor import extract_links_from_pdf
+from app.utils.validate_hyperlinks import validate_hyperlinks
 
 router = APIRouter()
 
@@ -76,7 +78,6 @@ async def analyze_resume(
     file: UploadFile = File(...),
     job_description: str = Body(..., embed=True),
     current_user: User = Depends(get_current_user)
-
 ):
     if not file.filename.endswith((".pdf", ".docx", ".doc")):
         raise HTTPException(status_code=400, detail="Only PDF, DOCX or DOC files are allowed")
@@ -86,6 +87,7 @@ async def analyze_resume(
     if await request.is_disconnected():
         raise HTTPException(status_code=499, detail="Client disconnected during upload")
 
+    # Convert to PDF if not already
     if file.filename.endswith(".pdf"):
         pdf_bytes = file_bytes
     else:
@@ -94,17 +96,28 @@ async def analyze_resume(
     if await request.is_disconnected():
         raise HTTPException(status_code=499, detail="Client disconnected before processing")
 
+    # Step 1: Extract hyperlinks from PDF
+    try:
+        hyperlinks = extract_links_from_pdf(pdf_bytes)
+        validated_links = validate_hyperlinks(hyperlinks)
+    except Exception as e:
+        validated_links = {"valid": [], "invalid": [{"uri": "extraction_error", "reason": str(e)}]}
+
+    # Step 2: Convert to images and analyze
     image_bytes_list = convert_pdf_to_image_bytes(pdf_bytes)
 
     if await request.is_disconnected():
         raise HTTPException(status_code=499, detail="Client disconnected before GPT processing")
 
-    # Call the combined analysis function here
-    # make sure this import matches your structure
-
     analysis_result = analyze_resume_from_images(image_bytes_list, job_description)
 
     if "error" in analysis_result:
         raise HTTPException(status_code=500, detail=f"LLM analysis error: {analysis_result['error']}")
+
+    # Step 3: Attach link validation result
+    analysis_result["links"] = {
+        "validLinks": validated_links["valid"],
+        "invalidLinks": validated_links["invalid"]
+    }
 
     return analysis_result
