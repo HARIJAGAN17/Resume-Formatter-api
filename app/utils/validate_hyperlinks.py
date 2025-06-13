@@ -2,22 +2,49 @@ import requests
 from typing import List, Dict
 
 def validate_hyperlinks(links: List[Dict], timeout: int = 5) -> Dict[str, List[Dict]]:
-  
     valid_links = []
     invalid_links = []
 
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/114.0.0.0 Safari/537.36"
+        )
+    }
+
     for link in links:
-        url = link.get("uri", "").strip()
-        if not url.lower().startswith(("http://", "https://")):
+        url = link.get("uri", "").strip().lower()
+
+        # Skip email links entirely
+        if url.startswith("mailto:"):
+            continue
+
+        # Only allow HTTP/HTTPS URLs
+        if not url.startswith(("http://", "https://")):
             invalid_links.append({**link, "reason": "Not a web URL"})
             continue
 
+        # Manually trust LinkedIn
+        if "linkedin.com" in url:
+            valid_links.append(link)
+            continue
+
         try:
-            response = requests.head(url, allow_redirects=True, timeout=timeout)
+            response = requests.get(
+                url,
+                headers=headers,
+                allow_redirects=True,
+                timeout=timeout,
+                verify=False,
+                stream=True
+            )
+
             if response.status_code < 400:
                 valid_links.append(link)
             else:
                 invalid_links.append({**link, "reason": f"HTTP {response.status_code}"})
+
         except requests.RequestException as e:
             invalid_links.append({**link, "reason": str(e)})
 
