@@ -48,7 +48,18 @@ def validate_hyperlinks(links: List[Dict], timeout: int = 5) -> Dict[str, List[D
         except requests.RequestException as e:
             invalid_links.append({**link, "reason": str(e)})
 
+    # Deduplicate by 'uri'
+    def deduplicate(links_list):
+        seen = set()
+        unique = []
+        for link in links_list:
+            uri = link["uri"]
+            if uri not in seen:
+                seen.add(uri)
+                unique.append(link)
+        return unique
+
     return {
-        "valid": valid_links,
-        "invalid": invalid_links
+        "valid": deduplicate(valid_links),
+        "invalid": deduplicate(invalid_links)
     }
